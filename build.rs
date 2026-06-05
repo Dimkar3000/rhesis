@@ -1,13 +1,10 @@
-use cxx_qt_build::{CxxQtBuilder, QmlModule};
+use cxx_qt_build::{CppFile, CxxQtBuilder, QmlModule};
 
 fn main() {
-    CxxQtBuilder::new()
-        .qml_module(QmlModule {
-            uri: "org.kde.rhesis",
-            qml_files: &["src/qml/Main.qml"],
-            rust_files: &["src/main.rs"],
-            ..Default::default()
-        })
+    CxxQtBuilder::new_qml_module(QmlModule::new("org.kde.rhesis").qml_file("src/qml/Main.qml"))
+        .qt_module("Gui")
+        .qt_module("Quick")
+        .cpp_file(CppFile::from("src/cpp/helper.h"))
+        .files(["src/bridge.rs"])
         .build();
 }
-
