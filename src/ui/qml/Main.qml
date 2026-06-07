@@ -40,7 +40,8 @@ Kirigami.ApplicationWindow {
 
         Controls.Menu {
             id: contextMenu
-
+            closePolicy: Controls.Popup.CloseOnEscape
+            
             function rebuild(suggestions) {
                 while (contextMenu.count > 0) {
                     var item = contextMenu.itemAt(0)
@@ -59,7 +60,7 @@ Kirigami.ApplicationWindow {
                 id: menuItemComponent
                 Controls.MenuItem {
                     onTriggered: {
-                        sourceArea.text = sourceArea.text.substring(0, page.wordStart) + text + sourceArea.text.substring(page.wordEnd)
+                        highlighter.replaceWord(page.wordStart, page.wordEnd, text)
                     }
                 }
             }
@@ -78,20 +79,28 @@ Kirigami.ApplicationWindow {
             anchors.fill: parent
             acceptedButtons: Qt.RightButton
             onClicked: mouse => {
-                sourceArea.cursorPosition = sourceArea.positionAt(mouse.x, mouse.y)
+                var pos = sourceArea.positionAt(mouse.x, mouse.y)
+                if (pos < 0) return
+
+                sourceArea.cursorPosition = pos
                 sourceArea.selectWord()
+
+                if (sourceArea.selectionStart < 0 || sourceArea.selectionEnd < 0) return
+
                 page.wordStart = sourceArea.selectionStart
                 page.wordEnd = sourceArea.selectionEnd
 
                 var selected = sourceArea.selectedText
                 if (selected.length > 0) {
-                    var raw = highlighter.getSuggestions(selected)
-                    contextMenu.rebuild(raw.split(';'))
+                    var raw = highlighter.getSuggestions(page.wordStart, page.wordEnd)
+                    console.log(raw)
+                    if(raw.length > 0) {
+                        contextMenu.rebuild(raw.split(';'))
+                        contextMenu.popup(mouse.x, mouse.y + 10)
+                    }
                 } else {
                     contextMenu.rebuild([])
                 }
-
-                contextMenu.popup(mouse.x, mouse.y)
             }
         }
     }

@@ -2,7 +2,8 @@ use cxx_qt_lib::{QGuiApplication, QQmlApplicationEngine, QQuickStyle, QString, Q
 
 use cxx_qt_lib_extras::QApplication;
 
-mod bridge;
+mod languatool;
+mod ui;
 
 use std::env;
 
@@ -20,7 +21,9 @@ fn main() {
     }
 
     if let Some(engine) = engine.as_mut() {
-        engine.load(&QUrl::from("qrc:/qt/qml/org/kde/rhesis/src/qml/Main.qml"));
+        engine.load(&QUrl::from(
+            "qrc:/qt/qml/org/kde/rhesis/src/ui/qml/Main.qml",
+        ));
     }
 
     if let Some(app) = app.as_mut() {
