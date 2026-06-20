@@ -1,42 +1,59 @@
-use crate::ui::bridge::bridge::Recomendation;
+use crate::{
+    interop::bridge::ffi::{Range, Recommendation},
+    languatool::models::LanguageToolDto,
+};
 
 #[derive(Default)]
 pub struct LanguageToolClient;
 
 impl LanguageToolClient {
-    pub fn get_recomendation(input: impl AsRef<str>) -> Vec<Recomendation> {
+    pub async fn get_recommendation(input: impl AsRef<str>) -> Vec<Recommendation> {
         let input = input.as_ref();
-        let len = input.len();
-        let mut i = 0;
-        let colors = ["#FF0000", "#00FF00", "#0000FF"];
 
         let mut results = Vec::new();
 
-        while i < len {
-            let char = input.chars().nth(i).unwrap();
-            if !char.is_ascii_alphanumeric() {
-                i += 1;
-                continue;
-            }
+        let client = reqwest::Client::new();
 
-            let start = i;
-            while i < len && !input.chars().nth(i).unwrap().is_ascii_whitespace() {
-                i += 1;
-            }
+        let form_data = [
+            ("text", input),
+            ("language", "auto"),
+            ("enabledOnly", "false"),
+        ];
 
-            if input[start..i].starts_with('a') || input[start..i].starts_with('A') {
-                results.push(Recomendation {
-                    start: start as i32,
-                    end: i as i32,
-                    value: "Bob".to_string(),
-                    color: colors[start % 3].into(),
-                });
-                results.push(Recomendation {
-                    start: start as i32,
-                    end: i as i32,
-                    value: input[start..i].to_string(),
-                    color: colors[start % 3].into(),
-                });
+        let response = client
+            .post("http://localhost:2699/v2/check")
+            .form(&form_data)
+            .send()
+            .await;
+
+        if let Ok(response) = response {
+            if response.status() == 200 {
+                let body = response.json::<LanguageToolDto>().await;
+
+                if let Err(e) = body {
+                    dbg!("failed to get response: {:?}", e);
+                    return vec![];
+                }
+
+                let body = body.unwrap();
+                // dbg!(&body);
+                println!("body");
+                results = body
+                    .matches
+                    .into_iter()
+                    .flat_map(|x| {
+                        x.replacements
+                            .into_iter()
+                            .map(move |replacement| Recommendation {
+                                color: "#FF0000".to_string(),
+                                range: Range {
+                                    start: x.offset,
+                                    length: x.length,
+                                },
+                                value: replacement.value.to_string(),
+                            })
+                    })
+                    .collect::<Vec<_>>();
             }
         }
 

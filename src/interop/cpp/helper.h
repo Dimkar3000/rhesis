@@ -20,7 +20,7 @@ inline std::unique_ptr<QTextCharFormat> newUnderlinedFormat(const QString& color
     return fmt;
 }
 
-inline void replaceTextInDocument(QTextDocument* doc, int start, int end, const QString& replacement) {
+inline void replaceTextInDocument(QTextDocument* doc, int64_t start, int64_t end, const QString& replacement) {
     QTextCursor cursor(doc);
     cursor.setPosition(start);
     cursor.setPosition(end, QTextCursor::KeepAnchor);

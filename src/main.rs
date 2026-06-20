@@ -2,12 +2,17 @@ use cxx_qt_lib::{QGuiApplication, QQmlApplicationEngine, QQuickStyle, QString, Q
 
 use cxx_qt_lib_extras::QApplication;
 
-mod languatool;
-mod ui;
-
 use std::env;
 
-fn main() {
+mod interop;
+mod languatool;
+
+#[tokio::main()]
+async fn main() {
+    run_ui();
+}
+
+fn run_ui() {
     let mut app = QApplication::new();
 
     let mut engine = QQmlApplicationEngine::new();
@@ -22,7 +27,7 @@ fn main() {
 
     if let Some(engine) = engine.as_mut() {
         engine.load(&QUrl::from(
-            "qrc:/qt/qml/org/kde/rhesis/src/ui/qml/Main.qml",
+            "qrc:/qt/qml/org/kde/rhesis/src/interop/qml/Main.qml",
         ));
     }
 

@@ -28,7 +28,12 @@ Kirigami.ApplicationWindow {
 
         CustomHighlighter {
             id: highlighter
-            Component.onCompleted: highlighter.setTextDocument(sourceArea.textDocument)
+            Component.onCompleted: highlighter.startMessageThread(helper)
+        }
+
+        AsyncHelper {
+            id: helper
+            Component.onCompleted: helper.start_async_worker()
         }
 
         actions: [
@@ -40,7 +45,7 @@ Kirigami.ApplicationWindow {
 
         Controls.Menu {
             id: contextMenu
-            closePolicy: Controls.Popup.CloseOnEscape
+            // closePolicy: Controls.Popup.CloseOnEscape
             
             function rebuild(suggestions) {
                 while (contextMenu.count > 0) {
@@ -73,6 +78,10 @@ Kirigami.ApplicationWindow {
             background: null
             wrapMode: Controls.TextArea.Wrap
             placeholderText: "Enter text..."
+            Component.onCompleted: highlighter.setTextDocument(sourceArea.textDocument)
+            onTextChanged: t => {
+                helper.text_area_changed(sourceArea.text)
+            }
         }
 
         MouseArea {
@@ -82,24 +91,23 @@ Kirigami.ApplicationWindow {
                 var pos = sourceArea.positionAt(mouse.x, mouse.y)
                 if (pos < 0) return
 
-                sourceArea.cursorPosition = pos
-                sourceArea.selectWord()
-
-                if (sourceArea.selectionStart < 0 || sourceArea.selectionEnd < 0) return
-
-                page.wordStart = sourceArea.selectionStart
-                page.wordEnd = sourceArea.selectionEnd
-
-                var selected = sourceArea.selectedText
-                if (selected.length > 0) {
-                    var raw = highlighter.getSuggestions(page.wordStart, page.wordEnd)
-                    console.log(raw)
-                    if(raw.length > 0) {
-                        contextMenu.rebuild(raw.split(';'))
-                        contextMenu.popup(mouse.x, mouse.y + 10)
-                    }
-                } else {
+                var bounds = highlighter.findRecommendation(pos)
+                if (bounds.length === 0) {
                     contextMenu.rebuild([])
+                    return
+                }
+
+                var parts = bounds.split(';')
+                page.wordStart = parseInt(parts[0])
+                page.wordEnd = parseInt(parts[1])
+
+                sourceArea.cursorPosition = page.wordStart
+                sourceArea.moveCursorSelection(page.wordEnd, TextEdit.SelectCharacters)
+
+                var items = highlighter.getSuggestions(page.wordStart, page.wordEnd)
+                if (items.length > 0) {
+                    contextMenu.rebuild(items)
+                    contextMenu.popup(mouse.x, mouse.y + 10)
                 }
             }
         }
