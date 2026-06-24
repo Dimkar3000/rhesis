@@ -22,5 +22,5 @@ install(
     DESTINATION ${KDE_INSTALL_BINDIR}
 )
 
-install(FILES org.kde.rhesis.desktop DESTINATION ${KDE_INSTALL_APPDIR})
+install(FILES org.dimkar.rhesis.desktop DESTINATION ${KDE_INSTALL_APPDIR})
 

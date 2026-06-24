@@ -37,7 +37,6 @@ impl LanguageToolClient {
 
                 let body = body.unwrap();
                 // dbg!(&body);
-                println!("body");
                 results = body
                     .matches
                     .into_iter()

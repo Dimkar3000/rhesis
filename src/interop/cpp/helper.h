@@ -3,8 +3,9 @@
 #include <QTextCharFormat>
 #include <QTextCursor>
 #include <QTextDocument>
-#include <QGuiApplication>
+#include <QApplication>
 #include <QPalette>
+#include <QIcon>
 #include <memory>
 
 inline std::unique_ptr<QTextCharFormat> newQTextCharFormat() noexcept {
@@ -25,4 +26,8 @@ inline void replaceTextInDocument(QTextDocument* doc, int64_t start, int64_t end
     cursor.setPosition(start);
     cursor.setPosition(end, QTextCursor::KeepAnchor);
     cursor.insertText(replacement);
+}
+
+inline void appSetWindowIcon(QApplication& app, const QString& path) {
+  app.setWindowIcon(QIcon(path));
 }

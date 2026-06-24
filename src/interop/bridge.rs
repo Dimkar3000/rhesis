@@ -1,5 +1,6 @@
 #[cxx_qt::bridge]
 pub mod ffi {
+
     #[derive(Default, Debug, Clone, PartialEq)]
     pub struct Recommendation {
         range: Range,
@@ -7,7 +8,7 @@ pub mod ffi {
         color: String,
     }
 
-    #[derive(Default, Debug, Clone, PartialEq)]
+    #[derive(Default, Debug, Clone, PartialEq, Copy)]
     pub struct Range {
         start: i32,
         length: i32,
@@ -19,6 +20,13 @@ pub mod ffi {
 
         include!("cxx-qt-lib/qlist.h");
         type QList_QString = cxx_qt_lib::QList<QString>;
+
+        include!("cxx-qt-lib/qlist.h");
+        type QList_i32 = cxx_qt_lib::QList<i32>;
+        type QGuiApplication = cxx_qt_lib::QGuiApplication;
+
+        include!("cxx-qt-lib-extras/gui/qapplication.h");
+        type QApplication = cxx_qt_lib_extras::QApplication;
     }
 
     unsafe extern "C++Qt" {
@@ -49,6 +57,8 @@ pub mod ffi {
             end: i64,
             replacement: &QString,
         );
+
+        fn appSetWindowIcon(app: Pin<&mut QApplication>, path: &QString);
     }
 
     unsafe extern "C++" {
@@ -93,7 +103,7 @@ pub mod ffi {
 
         #[qinvokable]
         #[cxx_name = "findRecommendation"]
-        fn find_recommendation(self: Pin<&mut CustomHighlighter>, pos: i32) -> QString;
+        fn find_recommendation(self: Pin<&mut CustomHighlighter>, pos: i32) -> QList_i32;
 
         #[qinvokable]
         #[cxx_name = "replaceWord"]
@@ -146,7 +156,7 @@ use cxx_qt_lib::QString;
 use std::{pin::Pin, time::Duration};
 use tokio::{sync::watch, task::JoinHandle, time::sleep};
 
-use crate::interop::bridge::ffi::{newUnderlinedFormat, Recommendation};
+use crate::interop::bridge::ffi::{newUnderlinedFormat, QList_i32, Recommendation};
 use crate::languatool::{
     client::LanguageToolClient,
     service::{Message, Suggestion},
@@ -244,7 +254,6 @@ pub struct RustQSyntaxHighlighter {
 
 impl ffi::CustomHighlighter {
     pub fn highlight_block(mut self: Pin<&mut Self>, _text: &QString) {
-        println!("highlight_block");
         let ranges: Vec<(i32, i32, UniquePtr<ffi::QTextCharFormat>)> = self
             .recommendations
             .iter()
@@ -281,15 +290,15 @@ impl ffi::CustomHighlighter {
         }
     }
 
-    pub fn find_recommendation(self: Pin<&mut Self>, pos: i32) -> QString {
+    pub fn find_recommendation(self: Pin<&mut Self>, pos: i32) -> QList_i32 {
         for r in &self.recommendations {
             let start = r.range.start;
             let end = r.range.start + r.range.length;
             if pos >= start && pos < end {
-                return QString::from(format!("{};{}", start, end));
+                return QList_i32::from([start, end]);
             }
         }
-        QString::default()
+        QList_i32::default()
     }
 
     pub fn set_text_document(self: Pin<&mut Self>, doc: *mut ffi::QQuickTextDocument) {
@@ -298,7 +307,6 @@ impl ffi::CustomHighlighter {
     }
 
     pub fn start_message_thread(self: Pin<&mut Self>, helper: *mut ffi::AsyncHelper) {
-        println!("started rec receiver thread");
         let helper = unsafe { &mut *helper };
         let mut receiver = helper.suggestion_receiver.clone();
         let qt_thread = self.qt_thread();

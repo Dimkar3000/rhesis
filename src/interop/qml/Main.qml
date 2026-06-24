@@ -3,7 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
-import org.kde.rhesis
+import org.dimkar.rhesis
 
 // Provides basic features needed for all kirigami applications
 Kirigami.ApplicationWindow {
@@ -49,14 +49,17 @@ Kirigami.ApplicationWindow {
             
             function rebuild(suggestions) {
                 while (contextMenu.count > 0) {
-                    var item = contextMenu.itemAt(0)
+                    let item = contextMenu.itemAt(0)
                     contextMenu.removeItem(item)
                     item.destroy()
                 }
 
-                for (var i = 0; i < suggestions.length; i++) {
-                    var item = menuItemComponent.createObject(null)
+                for (let i = 0; i < suggestions.length; i++) {
+                    let item = menuItemComponent.createObject(null)
                     item.text = suggestions[i]
+                    if(suggestions[i].trim().length === 0) {
+                        item.text = ("(clear empty text)")
+                    }
                     contextMenu.addItem(item)
                 }
             }
@@ -65,7 +68,11 @@ Kirigami.ApplicationWindow {
                 id: menuItemComponent
                 Controls.MenuItem {
                     onTriggered: {
-                        highlighter.replaceWord(page.wordStart, page.wordEnd, text)
+                        let suggestion = text
+                        if(suggestion === "(clear empty text)") {
+                            suggestion = "";
+                        }   
+                        highlighter.replaceWord(page.wordStart, page.wordEnd, suggestion)
                     }
                 }
             }
@@ -88,23 +95,22 @@ Kirigami.ApplicationWindow {
             anchors.fill: parent
             acceptedButtons: Qt.RightButton
             onClicked: mouse => {
-                var pos = sourceArea.positionAt(mouse.x, mouse.y)
+                let pos = sourceArea.positionAt(mouse.x, mouse.y)
                 if (pos < 0) return
 
-                var bounds = highlighter.findRecommendation(pos)
+                let bounds = highlighter.findRecommendation(pos)
                 if (bounds.length === 0) {
                     contextMenu.rebuild([])
                     return
                 }
 
-                var parts = bounds.split(';')
-                page.wordStart = parseInt(parts[0])
-                page.wordEnd = parseInt(parts[1])
+                page.wordStart = bounds[0]
+                page.wordEnd = bounds[1]
 
                 sourceArea.cursorPosition = page.wordStart
                 sourceArea.moveCursorSelection(page.wordEnd, TextEdit.SelectCharacters)
 
-                var items = highlighter.getSuggestions(page.wordStart, page.wordEnd)
+                let items = highlighter.getSuggestions(page.wordStart, page.wordEnd)
                 if (items.length > 0) {
                     contextMenu.rebuild(items)
                     contextMenu.popup(mouse.x, mouse.y + 10)
