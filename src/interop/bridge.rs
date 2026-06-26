@@ -70,7 +70,7 @@ pub mod ffi {
         #[qobject]
         #[base = QSyntaxHighlighter]
         #[qml_element]
-        type CustomHighlighter = super::RustQSyntaxHighlighter;
+        type CustomHighlighter = super::CustomHighlighterRust;
 
         #[qobject]
         #[qml_element]
@@ -150,123 +150,29 @@ pub mod ffi {
     }
 }
 
-use cxx::UniquePtr;
 use cxx_qt::{CxxQtType, Threading};
 use cxx_qt_lib::QString;
-use std::{pin::Pin, time::Duration};
-use tokio::{sync::watch, task::JoinHandle, time::sleep};
+use std::pin::Pin;
 
-use crate::interop::bridge::ffi::{newUnderlinedFormat, QList_i32, Recommendation};
-use crate::languatool::{
-    client::LanguageToolClient,
-    service::{Message, Suggestion},
-};
-
-pub struct AsyncHelperRust {
-    pub message_sender: watch::Sender<Message>,
-    pub message_receiver: watch::Receiver<Message>,
-    pub suggestion_sender: watch::Sender<Suggestion>,
-    pub suggestion_receiver: watch::Receiver<Suggestion>,
-
-    suppress_next: bool,
-    handle: Option<JoinHandle<()>>,
-}
-
-impl Default for AsyncHelperRust {
-    fn default() -> Self {
-        let (message_sender, message_receiver) = watch::channel::<Message>(Message("".to_string()));
-        let (suggestion_sender, suggestion_receiver) =
-            watch::channel::<Suggestion>(Suggestion(vec![]));
-
-        Self {
-            message_sender,
-            message_receiver,
-            suggestion_sender,
-            suggestion_receiver,
-            suppress_next: false,
-            handle: None,
-        }
-    }
-}
+use crate::interop::bridge::ffi::{newUnderlinedFormat, QList_i32};
+use crate::languatool::service::Message;
 
 impl ffi::AsyncHelper {
     fn start_async_worker(self: Pin<&mut Self>) {
-        let mut message_receiver = self.message_receiver.clone();
-        let suggestion_sender = self.suggestion_sender.clone();
-
-        self.rust_mut().handle = Some(tokio::spawn(async move {
-            let mut last_text = String::new();
-            loop {
-                let _ = message_receiver.changed().await;
-
-                loop {
-                    let debounce = sleep(Duration::from_millis(300));
-                    tokio::pin!(debounce);
-                    tokio::select! {
-                        _ = &mut debounce => break,
-                        _ = message_receiver.changed() => {}
-                    }
-                }
-
-                let message = message_receiver.borrow().clone();
-                let Message(text) = message;
-                if text == last_text || text.trim().is_empty() {
-                    continue;
-                }
-                last_text = text.clone();
-
-                let suggestions = LanguageToolClient::get_recommendation(text).await;
-                let _ = suggestion_sender.send(Suggestion(suggestions));
-            }
-        }));
+        self.rust_mut().start_async_worker();
     }
 
     fn text_area_changed(self: Pin<&mut Self>, text: QString) {
-        if self.rust().suppress_next {
-            self.rust_mut().suppress_next = false;
-            return;
-        }
-        let _ = self.message_sender.send(Message(text.to_string()));
+        let _ = self.message_sender.send(Message(text));
     }
-}
-impl Drop for ffi::AsyncHelper {
-    fn drop(&mut self) {
-        if let Some(handle) = self.handle.as_ref() {
-            handle.abort();
-        }
-    }
-}
-
-impl Drop for ffi::CustomHighlighter {
-    fn drop(&mut self) {
-        if let Some(handle) = self.handle.as_ref() {
-            handle.abort();
-        }
-    }
-}
-
-#[derive(Default)]
-pub struct RustQSyntaxHighlighter {
-    recommendations: Vec<Recommendation>,
-
-    handle: Option<JoinHandle<()>>,
 }
 
 impl ffi::CustomHighlighter {
     pub fn highlight_block(mut self: Pin<&mut Self>, _text: &QString) {
-        let ranges: Vec<(i32, i32, UniquePtr<ffi::QTextCharFormat>)> = self
-            .recommendations
-            .iter()
-            .map(|r| {
-                let color = QString::from(r.color.clone());
-                let format = newUnderlinedFormat(&color);
-                let start = r.range.start;
-                let length = r.range.length;
-                (start, length, format)
-            })
-            .collect();
+        let ranges = self.as_mut().rust_mut().highlight_block();
 
-        for (start, length, format) in ranges {
+        for (start, length, color) in ranges {
+            let format = newUnderlinedFormat(&color);
             self.as_mut().set_format(start, length, &format);
         }
     }
@@ -308,19 +214,10 @@ impl ffi::CustomHighlighter {
 
     pub fn start_message_thread(self: Pin<&mut Self>, helper: *mut ffi::AsyncHelper) {
         let helper = unsafe { &mut *helper };
-        let mut receiver = helper.suggestion_receiver.clone();
         let qt_thread = self.qt_thread();
-
-        self.rust_mut().handle = Some(tokio::spawn(async move {
-            loop {
-                let _ = receiver.changed().await;
-                let r = receiver.clone();
-                let _ = qt_thread.queue(move |mut a: Pin<&mut ffi::CustomHighlighter>| {
-                    let suggestions = r.borrow().0.clone();
-                    a.as_mut().rust_mut().recommendations = suggestions;
-                    a.as_mut().rehighlight();
-                });
-            }
-        }));
+        self.rust_mut().start_message_thread(helper, qt_thread);
     }
 }
+
+pub(super) type AsyncHelperRust = crate::interop::async_helper::AsyncHelperRust;
+pub(super) type CustomHighlighterRust = crate::interop::custom_highlighter::CustomHighlighterRust;

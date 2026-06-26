@@ -2,6 +2,7 @@ use cxx_qt_lib::{QGuiApplication, QQmlApplicationEngine, QQuickStyle, QString, Q
 
 use cxx_qt_lib_extras::QApplication;
 use lazy_static::lazy_static;
+use tokio::process::Command;
 
 use std::env;
 
@@ -12,8 +13,8 @@ mod languatool;
 
 lazy_static! {
     static ref NAMESPACE: QString = QString::from("org.dimkar.rhesis");
-    static ref MAIN_QML_FILE_PATH: QUrl = QUrl::from(&format!(
-        "qrc:/qt/qml/{}/src/interop/qml/Main.qml",
+    static ref ROOT_QML_FILE_PATH: QUrl = QUrl::from(&format!(
+        "qrc:/qt/qml/{}/src/interop/qml/Root.qml",
         NAMESPACE.to_string().replace(".", "/")
     ));
     static ref LOGO_PATH: QString = QString::from("logo.png");
@@ -21,7 +22,29 @@ lazy_static! {
 
 #[tokio::main()]
 async fn main() {
+    log::info!("Starting Language Server");
+    let handle = tokio::spawn(async move {
+        Command::new("java")
+            .args(&[
+                "-cp",
+                "languagetool-server.jar",
+                "org.languagetool.server.HTTPServer",
+                "--config",
+                "server.properties",
+                "--port",
+                "2699",
+                "--allow-origin",
+            ])
+            .current_dir("/home/dimkar/Downloads/LanguageTool-6.9-SNAPSHOT")
+            .output()
+            .await
+    });
+
     run_ui();
+
+    // Kill the langtool server and wait for it to stop
+    handle.abort();
+    let _ = handle.await;
 }
 
 fn run_ui() {
@@ -33,14 +56,15 @@ fn run_ui() {
 
     // To associate the executable to the installed desktop file
     QGuiApplication::set_desktop_file_name(&NAMESPACE);
+
     // To ensure the style is set correctly
     let style = env::var("QT_QUICK_CONTROLS_STYLE");
     if style.is_err() {
-        QQuickStyle::set_style(&NAMESPACE);
+        QQuickStyle::set_style(&QString::from("org.kde.desktop"));
     }
 
     if let Some(engine) = engine.as_mut() {
-        engine.load(&MAIN_QML_FILE_PATH);
+        engine.load(&ROOT_QML_FILE_PATH);
     }
 
     log::info!("Initialized");
