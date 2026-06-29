@@ -59,6 +59,8 @@ pub mod ffi {
         );
 
         fn appSetWindowIcon(app: Pin<&mut QApplication>, path: &QString);
+
+        fn setupIconTheme();
     }
 
     unsafe extern "C++" {
@@ -74,17 +76,21 @@ pub mod ffi {
 
         #[qobject]
         #[qml_element]
-        type AsyncHelper = super::AsyncHelperRust;
+        type AsyncMessagingHelper = super::AsyncMessagingHelperRust;
 
         #[qinvokable]
-        fn start_async_worker(self: Pin<&mut AsyncHelper>);
+        fn restart_lang_server(
+            self: Pin<&mut AsyncMessagingHelper>,
+            embeded: bool,
+            address: &QString,
+        );
 
         #[qinvokable]
-        fn text_area_changed(self: Pin<&mut AsyncHelper>, text: QString);
+        fn text_area_changed(self: Pin<&mut AsyncMessagingHelper>, text: QString);
 
     }
 
-    impl cxx_qt::Threading for AsyncHelper {}
+    impl cxx_qt::Threading for AsyncMessagingHelper {}
     impl cxx_qt::Threading for CustomHighlighter {}
 
     extern "RustQt" {
@@ -116,7 +122,10 @@ pub mod ffi {
 
         #[qinvokable]
         #[cxx_name = "startMessageThread"]
-        unsafe fn start_message_thread(self: Pin<&mut CustomHighlighter>, helper: *mut AsyncHelper);
+        unsafe fn start_message_thread(
+            self: Pin<&mut CustomHighlighter>,
+            helper: *mut AsyncMessagingHelper,
+        );
 
         #[qinvokable]
         #[cxx_name = "setTextDocument"]
@@ -157,9 +166,10 @@ use std::pin::Pin;
 use crate::interop::bridge::ffi::{newUnderlinedFormat, QList_i32};
 use crate::languatool::service::Message;
 
-impl ffi::AsyncHelper {
-    fn start_async_worker(self: Pin<&mut Self>) {
-        self.rust_mut().start_async_worker();
+impl ffi::AsyncMessagingHelper {
+    fn restart_lang_server(self: Pin<&mut Self>, embeded: bool, address: &QString) {
+        self.rust_mut()
+            .restart_lang_server(embeded, &address.to_string());
     }
 
     fn text_area_changed(self: Pin<&mut Self>, text: QString) {
@@ -212,12 +222,13 @@ impl ffi::CustomHighlighter {
         unsafe { self.set_document(text_doc) };
     }
 
-    pub fn start_message_thread(self: Pin<&mut Self>, helper: *mut ffi::AsyncHelper) {
+    pub fn start_message_thread(self: Pin<&mut Self>, helper: *mut ffi::AsyncMessagingHelper) {
         let helper = unsafe { &mut *helper };
         let qt_thread = self.qt_thread();
         self.rust_mut().start_message_thread(helper, qt_thread);
     }
 }
 
-pub(super) type AsyncHelperRust = crate::interop::async_helper::AsyncHelperRust;
+pub(super) type AsyncMessagingHelperRust =
+    crate::interop::async_messaging_helper::AsyncMessagingHelperRust;
 pub(super) type CustomHighlighterRust = crate::interop::custom_highlighter::CustomHighlighterRust;

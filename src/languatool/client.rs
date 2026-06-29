@@ -4,10 +4,27 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct LanguageToolClient;
+pub struct LanguageToolClient {
+    address: String,
+}
 
 impl LanguageToolClient {
-    pub async fn get_recommendation(input: impl AsRef<str>) -> Vec<Recommendation> {
+    pub fn new_local(port: &str) -> Self {
+        Self {
+            address: format!("http://localhost:{port}"),
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn new_remote(address: &str) -> Self {
+        Self {
+            address: address.trim().trim_end_matches("/").to_string(),
+        }
+    }
+}
+
+impl LanguageToolClient {
+    pub async fn get_recommendation(&self, input: impl AsRef<str>) -> Vec<Recommendation> {
         let input = input.as_ref();
 
         let mut results = Vec::new();
@@ -21,7 +38,7 @@ impl LanguageToolClient {
         ];
 
         let response = client
-            .post("http://localhost:2699/v2/check")
+            .post(format!("{}/v2/check", self.address))
             .form(&form_data)
             .send()
             .await;

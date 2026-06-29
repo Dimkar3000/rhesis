@@ -6,6 +6,7 @@
 #include <QApplication>
 #include <QPalette>
 #include <QIcon>
+#include <QSettings>
 #include <memory>
 
 inline std::unique_ptr<QTextCharFormat> newQTextCharFormat() noexcept {
@@ -30,4 +31,10 @@ inline void replaceTextInDocument(QTextDocument* doc, int64_t start, int64_t end
 
 inline void appSetWindowIcon(QApplication& app, const QString& path) {
   app.setWindowIcon(QIcon(path));
+}
+
+inline void setupIconTheme() {
+    QStringList paths = QIcon::themeSearchPaths();
+    paths.prepend(":/icons");
+    QIcon::setThemeSearchPaths(paths);
 }

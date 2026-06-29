@@ -11,13 +11,13 @@ Kirigami.Page {
     property int wordStart: 0
     property int wordEnd: 0
     property CustomHighlighter highlighter
-    property AsyncHelper helper
+    property AsyncMessagingHelper helper
 
     actions: [
         Kirigami.Action {
-            icon.name: "document-save"
-            text: "Save"
-            onTriggered: applicationWindow().pageStack.push(applicationWindow().secondPage)
+            icon.name: "configure"
+            text: "Settings"
+            onTriggered: applicationWindow().pageStack.layers.push(applicationWindow().settingsPage)
         }
     ]
 

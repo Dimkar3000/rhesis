@@ -35,7 +35,7 @@ impl CustomHighlighterRust {
 
     pub fn start_message_thread(
         &mut self,
-        helper: &mut crate::interop::bridge::ffi::AsyncHelper,
+        helper: &mut crate::interop::bridge::ffi::AsyncMessagingHelper,
         qt_thread: cxx_qt::CxxQtThread<crate::interop::bridge::ffi::CustomHighlighter>,
     ) {
         let mut receiver = helper.suggestion_receiver.clone();

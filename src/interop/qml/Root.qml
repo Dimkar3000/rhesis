@@ -1,42 +1,56 @@
+import QtCore
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls as Controls
 import org.kde.kirigami as Kirigami
 import org.dimkar.rhesis
+import org.kde.kirigamiaddons.formcard as FormCard
 
 Kirigami.ApplicationWindow {
     id: root
 
-    width: 400
-    height: 300
+    width: 1280
+    height: 720
+    maximumWidth: 1280
+    maximumHeight: 720
 
     title: "Hello Linux"
 
-    property alias secondPage: secondPage
+    property alias settingsPage: settingsPage
+
+    Settings {
+        id: appSettings
+        property bool embedded: true
+        property string port: "2689"
+        property string defaultPort: "2689"
+    }
 
     pageStack.globalToolBar.showNavigationButtons: Kirigami.ApplicationHeaderStyle.NoNavigationButtons
     pageStack.columnView.scrollDuration: 0
-    pageStack.initialPage: mainPage
 
-    MainPage {
-        id: mainPage
-        highlighter: highlighter
-        helper: helper
+    Component {
+        id: settingsPage
+        SettingsPage {
+            settings: appSettings
+            helper: messagingHelper
+        }
     }
-
-    SecondPage {
-        id: secondPage
-        visible: false
-    }
-
 
     CustomHighlighter {
         id: highlighter
-        Component.onCompleted: highlighter.startMessageThread(helper)
+        Component.onCompleted: highlighter.startMessageThread(messagingHelper)
     }
 
-    AsyncHelper {
-        id: helper
-        Component.onCompleted: helper.start_async_worker()
+    AsyncMessagingHelper {
+        id: messagingHelper
+        Component.onCompleted: { 
+            messagingHelper.restart_lang_server(appSettings.embedded, appSettings.port)
+        }
+    }
+
+    pageStack.initialPage: MainPage {
+        id: mainPage
+        highlighter: highlighter
+        helper: messagingHelper
     }
 }

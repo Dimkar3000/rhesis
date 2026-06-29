@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/hicolor/index.theme</file>
+        <file>icons/hicolor/22x22/actions/configure.svg</file>
+        <file>icons/hicolor/22x22/actions/dialog-ok-apply.svg</file>
+        <file>icons/hicolor/22x22/apps/logo.png</file>
+    </qresource>
+</RCC>

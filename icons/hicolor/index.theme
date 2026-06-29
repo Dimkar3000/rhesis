@@ -1,0 +1,14 @@
+[Icon Theme]
+Name=hicolor
+Comment=Fallback icon theme
+Directories=22x22/actions,22x22/apps
+
+[22x22/actions]
+Size=22
+Context=Actions
+Type=Fixed
+
+[22x22/apps]
+Size=22
+Context=Applications
+Type=Fixed

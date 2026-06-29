@@ -2,7 +2,6 @@ use cxx_qt_lib::{QGuiApplication, QQmlApplicationEngine, QQuickStyle, QString, Q
 
 use cxx_qt_lib_extras::QApplication;
 use lazy_static::lazy_static;
-use tokio::process::Command;
 
 use std::env;
 
@@ -17,40 +16,28 @@ lazy_static! {
         "qrc:/qt/qml/{}/src/interop/qml/Root.qml",
         NAMESPACE.to_string().replace(".", "/")
     ));
-    static ref LOGO_PATH: QString = QString::from("logo.png");
+    static ref LOGO_PATH: QString = QString::from(":/icons/hicolor/22x22/apps/logo.png");
 }
 
 #[tokio::main()]
 async fn main() {
     log::info!("Starting Language Server");
-    let handle = tokio::spawn(async move {
-        Command::new("java")
-            .args(&[
-                "-cp",
-                "languagetool-server.jar",
-                "org.languagetool.server.HTTPServer",
-                "--config",
-                "server.properties",
-                "--port",
-                "2699",
-                "--allow-origin",
-            ])
-            .current_dir("/home/dimkar/Downloads/LanguageTool-6.9-SNAPSHOT")
-            .output()
-            .await
-    });
 
     run_ui();
-
-    // Kill the langtool server and wait for it to stop
-    handle.abort();
-    let _ = handle.await;
 }
 
 fn run_ui() {
     env_logger::init();
 
     let mut app = QApplication::new();
+    if let Some(mut app) = app.as_mut() {
+        use std::pin::Pin;
+        Pin::as_mut(&mut app).set_organization_name(&QString::from("rhesis"));
+        Pin::as_mut(&mut app).set_organization_domain(&QString::from("dimkar.org"));
+        Pin::as_mut(&mut app).set_application_name(&QString::from("Rhesis"));
+    }
+
+    bridge::ffi::setupIconTheme();
 
     let mut engine = QQmlApplicationEngine::new();
 
