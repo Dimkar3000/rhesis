@@ -4,7 +4,7 @@
   "runtime-version": "6.9",
   "sdk": "org.kde.Sdk",
   "command": "rhesis",
-  "desktop-file-name-suffix": " (Nightly)",
+  "desktop-file-name-suffix": "",
   "sdk-extensions": [
     "org.freedesktop.Sdk.Extension.rust-stable",
     "org.freedesktop.Sdk.Extension.openjdk17"
