@@ -1,3 +1,14 @@
-/target
 build
 .cargo
+.idea
+.flatpak-builder
+/target
+venv
+flatpak-build-dir
+cargo-sources.json
+flatpak-cargo-generator.py
+lid.176.bin
+LanguageTool-6.9-SNAPSHOT
+fastText
+rhesis-master
+rhesis.flatpak

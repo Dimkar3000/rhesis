@@ -1,5 +1,6 @@
 use std::{
     io::{BufRead, BufReader},
+    path::PathBuf,
     process::{Child, Command, Stdio},
     time::Duration,
 };
@@ -112,6 +113,20 @@ impl AsyncMessagingHelperRust {
         }
     }
 
+    fn language_tool_dir() -> PathBuf {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(exe_dir) = exe.parent() {
+                if let Some(prefix) = exe_dir.parent() {
+                    let flatpak_path = prefix.join("LanguageTool-6.9-SNAPSHOT");
+                    if flatpak_path.is_dir() {
+                        return flatpak_path;
+                    }
+                }
+            }
+        }
+        PathBuf::from("./LanguageTool-6.9-SNAPSHOT")
+    }
+
     fn setup_child(&mut self, port: String) {
         let mut child = Command::new("java")
             .args([
@@ -124,7 +139,7 @@ impl AsyncMessagingHelperRust {
                 &port,
                 "--allow-origin",
             ])
-            .current_dir("/home/dimkar/Downloads/LanguageTool-6.9-SNAPSHOT")
+            .current_dir(Self::language_tool_dir())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .spawn()

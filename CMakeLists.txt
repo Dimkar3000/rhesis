@@ -26,10 +26,10 @@ add_custom_target(rhesis_build ALL
 )
 
 # Determine binary output location
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(RHESIS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}/release/${RHESIS_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
-else()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(RHESIS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}/debug/${RHESIS_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
+else()
+    set(RHESIS_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}/release/${RHESIS_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
 # --- Install rules ---

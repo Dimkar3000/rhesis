@@ -39,10 +39,6 @@ Kirigami.Page {
             text: "Apply"
             enabled: hasChanges && ((localEmbedded && localPortValid) || !localEmbedded)
             onTriggered: {
-                console.log("settings.embedded: ", localEmbedded)
-                console.log("settings.port: ", localPort)
-                console.log("hasChanges: ", hasChanges)
-
                 if(hasChanges) {
                     helper.restart_lang_server(localEmbedded, localPort)
                 }
