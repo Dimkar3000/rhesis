@@ -117,14 +117,14 @@ impl AsyncMessagingHelperRust {
         if let Ok(exe) = std::env::current_exe() {
             if let Some(exe_dir) = exe.parent() {
                 if let Some(prefix) = exe_dir.parent() {
-                    let flatpak_path = prefix.join("LanguageTool-6.9-SNAPSHOT");
+                    let flatpak_path = prefix.join("LanguageTool");
                     if flatpak_path.is_dir() {
                         return flatpak_path;
                     }
                 }
             }
         }
-        PathBuf::from("./LanguageTool-6.9-SNAPSHOT")
+        PathBuf::from("./LanguageTool")
     }
 
     fn setup_child(&mut self, port: String) {

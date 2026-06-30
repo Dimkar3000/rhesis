@@ -8,7 +8,8 @@ flatpak-build-dir
 cargo-sources.json
 flatpak-cargo-generator.py
 lid.176.bin
-LanguageTool-6.9-SNAPSHOT
+LanguageTool
+LanguageTool-*
 fastText
 rhesis-master
 rhesis.flatpak
