@@ -20,25 +20,22 @@ jobs:
             flatpak \
             flatpak-builder \
             openjdk-17-jre-headless \
-            python3 \
-            python3-venv \
-            python3-pip \
-            curl \
-            git \
-            make \
             g++ \
+            make \
+            cmake \
             unzip \
-            cmake
+            python3-pip \
+            python3-venv \
+            curl \
+            ca-certificates
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
 
-      - name: Add flathub remote
-        run: flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-      - name: Cache flatpak runtimes
-        id: cache-flatpak
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/share/flatpak
-          key: flatpak-${{ runner.os }}-${{ hashFiles('org.dimkar.rhesis.json') }}
+      - name: Install mold linker
+        run: |
+          curl -fsSL "https://github.com/rui314/mold/releases/download/v2.41.0/mold-2.41.0-x86_64-linux.tar.gz" \
+            | sudo tar xz -C /usr/local --strip-components=1 --no-same-owner
+          sudo ldconfig
 
       - name: Run setup script
         run: bash setup.sh

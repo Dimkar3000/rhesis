@@ -20,6 +20,21 @@
   ],
   "modules": [
     {
+      "name": "mold",
+      "buildsystem": "simple",
+      "build-commands": [
+        "install -Dm755 mold-2.41.0-x86_64-linux/bin/mold /app/bin/mold",
+        "install -Dm755 mold-2.41.0-x86_64-linux/bin/ld.mold /app/bin/ld.mold"
+      ],
+      "sources": [
+        {
+          "type": "archive",
+          "url": "https://github.com/rui314/mold/releases/download/v2.41.0/mold-2.41.0-x86_64-linux.tar.gz",
+          "sha256": "a3696680d99e692970590a178bc3a33d78d60d1c6dc9db7a11b557b02b751f5d"
+        }
+      ]
+    },
+    {
       "buildsystem": "cmake",
       "name": "corrosion",
       "sources": [
@@ -41,7 +56,6 @@
       "buildsystem": "simple",
       "name": "rhesis",
       "build-commands": [
-        "cp -f cargo/config .cargo/config.toml",
         "cmake -DCMAKE_INSTALL_PREFIX=/app .",
         "make -j$(nproc) install",
         "install -Dm644 org.dimkar.rhesis.png /app/share/icons/hicolor/256x256/apps/org.dimkar.rhesis.png",

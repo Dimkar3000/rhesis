@@ -37,6 +37,7 @@ python "$GENERATOR_SCRIPT" Cargo.lock -o "$CARGO_SOURCES"
 
 # --- Install flatpak runtimes and extensions ---
 echo "Ensuring flatpak runtimes and extensions are installed..."
+flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 flatpak install --user --noninteractive flathub org.kde.Platform//6.9
 flatpak install --user --noninteractive flathub org.kde.Sdk//6.9
 flatpak install --user --noninteractive flathub org.freedesktop.Sdk.Extension.rust-stable//24.08
