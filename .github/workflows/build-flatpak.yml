@@ -28,10 +28,6 @@ jobs:
             python3-venv \
             curl \
             ca-certificates \
-            qtbase6-dev \
-            qtchooser \
-            qt6-qmake \
-            qtbase6-dev-tools
 
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
