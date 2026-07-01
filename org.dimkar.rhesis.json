@@ -23,8 +23,8 @@
       "name": "mold",
       "buildsystem": "simple",
       "build-commands": [
-        "install -Dm755 mold-2.41.0-x86_64-linux/bin/mold /app/bin/mold",
-        "install -Dm755 mold-2.41.0-x86_64-linux/bin/ld.mold /app/bin/ld.mold"
+        "install -Dm755 bin/mold /app/bin/mold",
+        "install -Dm755 bin/ld.mold /app/bin/ld.mold"
       ],
       "sources": [
         {
