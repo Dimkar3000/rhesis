@@ -4,7 +4,6 @@ build
 /target
 venv
 flatpak-build-dir
-cargo-sources.json
 flatpak-cargo-generator.py
 lid.176.bin
 LanguageTool

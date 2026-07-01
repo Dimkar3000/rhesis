@@ -47,7 +47,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -58,7 +58,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -315,27 +315,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2298356d03194a4fea739a8f0c5947aea42e8998d21a9a5c1d9e3d11f3be327a"
 dependencies = [
  "cxx",
- "cxx-qt-build 0.9.0",
+ "cxx-qt-build",
  "cxx-qt-macro",
- "qt-build-utils 0.9.0",
+ "qt-build-utils",
  "static_assertions",
  "thiserror 1.0.69",
-]
-
-[[package]]
-name = "cxx-qt-build"
-version = "0.8.1"
-source = "git+https://github.com/KDAB/cxx-qt.git#ae814a5c726a11eaed7478d2ed247337f84c5489"
-dependencies = [
- "cc",
- "codespan-reporting 0.11.1",
- "cxx-gen",
- "cxx-qt-gen 0.8.1",
- "proc-macro2",
- "qt-build-utils 0.8.1",
- "quote",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -347,26 +331,12 @@ dependencies = [
  "cc",
  "codespan-reporting 0.11.1",
  "cxx-gen",
- "cxx-qt-gen 0.9.0",
+ "cxx-qt-gen",
  "proc-macro2",
- "qt-build-utils 0.9.0",
+ "qt-build-utils",
  "quote",
  "serde",
  "serde_json",
-]
-
-[[package]]
-name = "cxx-qt-gen"
-version = "0.8.1"
-source = "git+https://github.com/KDAB/cxx-qt.git#ae814a5c726a11eaed7478d2ed247337f84c5489"
-dependencies = [
- "clang-format",
- "convert_case",
- "cxx-gen",
- "indoc",
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -392,8 +362,8 @@ checksum = "6ddcdfecf73d452a6cd7e83f616fd7f9bc77324a376313e0ba3924fb665c62ac"
 dependencies = [
  "cxx",
  "cxx-qt",
- "cxx-qt-build 0.9.0",
- "qt-build-utils 0.9.0",
+ "cxx-qt-build",
+ "qt-build-utils",
 ]
 
 [[package]]
@@ -404,7 +374,7 @@ checksum = "05b8c2d29b983b2f2d2c00e15cdfb064483548f0c559bd5322d29f01c5e48d06"
 dependencies = [
  "cxx",
  "cxx-qt",
- "cxx-qt-build 0.9.0",
+ "cxx-qt-build",
  "cxx-qt-lib",
 ]
 
@@ -414,7 +384,7 @@ version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce6a7e6ac9eecc721c877c28c031dfba6c684be0d5a90b88c9a7aa9b20587aab"
 dependencies = [
- "cxx-qt-gen 0.9.0",
+ "cxx-qt-gen",
  "proc-macro2",
  "quote",
  "syn",
@@ -546,7 +516,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1204,19 +1174,6 @@ dependencies = [
 
 [[package]]
 name = "qt-build-utils"
-version = "0.8.1"
-source = "git+https://github.com/KDAB/cxx-qt.git#ae814a5c726a11eaed7478d2ed247337f84c5489"
-dependencies = [
- "anyhow",
- "cc",
- "semver",
- "serde",
- "thiserror 1.0.69",
- "which",
-]
-
-[[package]]
-name = "qt-build-utils"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fcfb3d8489f811e89e63ffc7184eb5063a74baf7825e4c9e14e7607a3c546578"
@@ -1414,7 +1371,7 @@ version = "0.1.0"
 dependencies = [
  "cxx",
  "cxx-qt",
- "cxx-qt-build 0.8.1",
+ "cxx-qt-build",
  "cxx-qt-lib",
  "cxx-qt-lib-extras",
  "env_logger",
@@ -1510,7 +1467,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -1708,7 +1665,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "52d1cfed4120b4d927bf7c0f86d2087a4a7d6027c906d9f9d525a80573b9be51"
 dependencies = [
  "libc",
- "windows-sys 0.61.2",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -2181,7 +2138,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.61.2",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
