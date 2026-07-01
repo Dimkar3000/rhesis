@@ -29,7 +29,8 @@ jobs:
             curl \
             ca-certificates \
             qt6-base-dev \
-            qt6-base-dev-tools
+            qt6-base-dev-tools \
+            qmake6
 
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
