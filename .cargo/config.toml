@@ -1,5 +1,5 @@
 [env]
-QMAKE = "/usr/lib/qt6/bin/qmake"
+#QMAKE = "/usr/lib/qt6/bin/qmake"
 
 [target.'cfg(target_os = "linux")']
 rustflags = ["-C", "link-arg=-fuse-ld=mold"]
